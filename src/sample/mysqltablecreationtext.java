@@ -44,6 +44,7 @@ public class mysqltablecreationtext {
     //  `contact` VARCHAR(305) NOT NULL,
     //  `message` VARCHAR(2000) NOT NULL,
     //  `size` INT NOT NULL,
+    //  `author` VARCHAR(305) NOT NULL,
     //  PRIMARY KEY (`id`),
     //  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE);
 

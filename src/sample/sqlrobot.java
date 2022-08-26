@@ -160,13 +160,14 @@ public class sqlrobot {
         return stringBuilder.toString();
     }
 
-    public void insertmessage(String user, String contact, String message, int size) throws SQLException {
+    public void insertmessage(String user, String contact, String message, int size, String author ) throws SQLException {
         Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-        PreparedStatement preparedStatement = conn.prepareStatement("INSERT INTO squeekdb.smsmessages (user , contact , message , size) VALUES (?, ? , ? , ? ) ");
+        PreparedStatement preparedStatement = conn.prepareStatement("INSERT INTO squeekdb.smsmessages (user , contact , message , size, author) VALUES (?, ? , ? ,?, ? ) ");
         preparedStatement.setString(1, user);
         preparedStatement.setString(2, contact);
         preparedStatement.setString(3, message);
         preparedStatement.setInt(4, size);
+        preparedStatement.setString(5,author);
         preparedStatement.executeUpdate();
         conn.close();
     }
@@ -180,7 +181,8 @@ public class sqlrobot {
         preparedStatement.setString(2, contact);
         ResultSet rs = preparedStatement.executeQuery();
         while (rs.next()) {
-            resultHolder.add(new message(rs.getString("user"),rs.getString("contact"),rs.getString("message"),rs.getInt("size")));
+            resultHolder.add(new message(rs.getString("user"),rs.getString("contact"),rs.getString("message"),rs.getInt("size"),
+                    rs.getString("author")));
         }
         conn.close();
         StringBuilder stringBuilder = new StringBuilder();
