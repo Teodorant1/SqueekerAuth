@@ -1,27 +1,26 @@
 package sample;
 
 import com.sun.net.httpserver.HttpServer;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
-public class minihttpserver
+public class SMSendpointHTTPServer
 
 {
-    HttpServer server = HttpServer.create(new InetSocketAddress(8001), 20000);
+    HttpServer server = HttpServer.create(new InetSocketAddress(8003), 20000);
     ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 
 
 
-    minihttphandler myHttpHandler1 = new minihttphandler();
+    smshttphandler myHttpHandler1 = new smshttphandler();
 
     public void launch()
     {
         System.out.println("AND HER NAME IS ERIKA");
 
-        server.createContext("/getsms", myHttpHandler1);
+        server.createContext("/sms", myHttpHandler1);
 
         server.setExecutor(threadPoolExecutor);
 
@@ -29,7 +28,7 @@ public class minihttpserver
 
     }
 
-    public minihttpserver() throws IOException {
+    public SMSendpointHTTPServer() throws IOException {
     }
 
     public HttpServer getServer() {
@@ -48,11 +47,11 @@ public class minihttpserver
         this.threadPoolExecutor = threadPoolExecutor;
     }
 
-    public minihttphandler getMyHttpHandler1() {
+    public smshttphandler getMyHttpHandler1() {
         return myHttpHandler1;
     }
 
-    public void setMyHttpHandler1(minihttphandler myHttpHandler1) {
+    public void setMyHttpHandler1(smshttphandler myHttpHandler1) {
         this.myHttpHandler1 = myHttpHandler1;
     }
 

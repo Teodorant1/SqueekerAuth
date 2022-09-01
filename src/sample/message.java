@@ -3,34 +3,41 @@ package sample;
 public class message {
 
 
-    public String toJson ()
+    public String toJson()
 // I might need to refactor a lot of this
-    { return
-      "{" + symbol + "message" + symbol + ":" + symbol + getMessage() + symbol + "," +
-            symbol + "size"    + symbol + ":" +symbol+ getSize() + symbol +
-            symbol + "author"  + symbol + ":" +symbol+ getAuthor() + symbol +
-                    "}";  }
-
+    {
+        return
+                "{" +   symbol + "message" + symbol + ":" + symbol + getMessage() + symbol + "," +
+                        symbol + "author" + symbol + ":" + symbol + getAuthor() + symbol +
+                        symbol + "user" + symbol + ":" + symbol + getUser() + symbol +
+                        symbol + "contact" + symbol + ":" + symbol + getContact() + symbol +
+                        symbol + "media" + symbol + ":" + symbol + getMedia() + symbol +
+                        symbol + "segments" + symbol + ":" + symbol + getSegments() + symbol +
+                        "}";
+    }
 
 
     String user;
     String contact;
     String message;
+
     String author;
-    int size;
+    String media;
+    int segments;
+
     private final String symbol = "\"";
 
 
-    public message(String user, String contact, String message, int size, String author) {
+    public message(String user, String contact, String message, String author, String media, int segments) {
         this.user = user;
         this.contact = contact;
         this.message = message;
-        this.size = size;
         this.author = author;
+        this.media = media;
+        this.segments = segments;
     }
 
-    public message() {
-    }
+    public message() {}
 
     public String getUser() {
         return user;
@@ -56,13 +63,7 @@ public class message {
         this.message = message;
     }
 
-    public int getSize() {
-        return size;
-    }
 
-    public void setSize(int size) {
-        this.size = size;
-    }
 
     public String getAuthor() {
         return author;
@@ -70,6 +71,22 @@ public class message {
 
     public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public String getMedia() {
+        return media;
+    }
+
+    public void setMedia(String media) {
+        this.media = media;
+    }
+
+    public int getSegments() {
+        return segments;
+    }
+
+    public void setSegments(int segments) {
+        this.segments = segments;
     }
 
 }
