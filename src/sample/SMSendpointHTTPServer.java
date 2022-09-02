@@ -12,8 +12,6 @@ public class SMSendpointHTTPServer
     HttpServer server = HttpServer.create(new InetSocketAddress(8003), 20000);
     ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 
-
-
     smshttphandler myHttpHandler1 = new smshttphandler();
 
     public void launch()

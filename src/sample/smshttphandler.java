@@ -46,10 +46,10 @@ public class smshttphandler implements HttpHandler {
 
     public String handlerequest(String entrystring) throws SQLException {
         JSONObject object1 = new JSONObject(entrystring);
-        String to = sqlrobot1.pull_user_bynumber(Integer.parseInt
-                        (object1.getString("to")));
-        String from = sqlrobot1.pull_contact_bynumber(
-               Integer.parseInt(object1.getJSONArray("from").get(0).toString()) );
+        String to = sqlrobot1
+                .pull_user_bynumber(object1.getJSONArray("to").get(0).toString());
+        String from = sqlrobot1
+                .pull_contact_bynumber(object1.getString("from"));
 
 
 sqlrobot1.insertmessage(

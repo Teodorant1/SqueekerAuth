@@ -21,9 +21,7 @@ public class sendSMSHTTPhandler implements HttpHandler {
         byte[] input = ios.readAllBytes();
 
         String inputString = new String(input, StandardCharsets.UTF_8);
-
         System.out.println(inputString);
-
 
 
         String response = null;
@@ -37,8 +35,8 @@ public class sendSMSHTTPhandler implements HttpHandler {
         t.getResponseHeaders().add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
         t.getResponseHeaders().add("Access-Control-Allow-Credentials", "true");
         t.getResponseHeaders().add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS,HEAD");
-
         t.sendResponseHeaders(200, response.getBytes().length);
+
         OutputStream os = t.getResponseBody();
         os.write(response.getBytes());
         os.close();
@@ -46,18 +44,30 @@ public class sendSMSHTTPhandler implements HttpHandler {
 
     public String handlerequest(String entrystring) throws SQLException {
         JSONObject object1 = new JSONObject(entrystring);
-        String from = sqlrobot1.pull_user_bynumber(Integer.parseInt
-                (object1.getString("from")));
-        String to = sqlrobot1.pull_contact_bynumber(
-                Integer.parseInt(object1.getString("to")) );
+        System.out.println(object1.getString("from"));
+        System.out.println(object1.getString("to"));
 
-        telegramsender telegramsender1 = new telegramsender();
-        telegramsender1.sendmessage
-                (
-                object1.getString("from"),
-                object1.getString("to"),
-                object1.getString("text")
-        );
+        String tov1 = object1.getString("to");
+        String fromv1 = object1.getString("from");
+        String[] toFragments = tov1.split("quiznos");
+        String[] fromFragments = fromv1.split("quiznos");
+        String toFinal   =   toFragments[1];
+        String fromFinal = fromFragments[1];
+
+
+        System.out.println(toFragments[1]);
+        System.out.println(fromFragments[1]);
+
+
+    //    System.out.println(toFinal);
+    //    System.out.println(fromFinal);
+
+        String from = sqlrobot1.pull_user_bynumber(fromFinal);
+        String to = sqlrobot1.pull_contact_bynumber
+                (toFinal);
+
+       // telegramsender telegramsender1 = new telegramsender();
+       // telegramsender1.sendmessage(fromFinal,toFinal,object1.getString("text"));
 
         sqlrobot1.insertmessage(
                 from,
@@ -66,6 +76,6 @@ public class sendSMSHTTPhandler implements HttpHandler {
                 from,
                 "1",
                 1);
-        return "Message sent by"+from;
+        return "Message sent by: " + from;
     }
 }
