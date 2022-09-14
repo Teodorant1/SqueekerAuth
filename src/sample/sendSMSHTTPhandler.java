@@ -13,6 +13,8 @@ import java.sql.SQLException;
 public class sendSMSHTTPhandler implements HttpHandler {
 
     sqlrobot sqlrobot1 = new sqlrobot();
+    telegramsender telegramsender1 = new telegramsender();
+
 
     @Override
     public void handle(HttpExchange t) throws IOException {
@@ -44,38 +46,33 @@ public class sendSMSHTTPhandler implements HttpHandler {
 
     public String handlerequest(String entrystring) throws SQLException {
         JSONObject object1 = new JSONObject(entrystring);
-        System.out.println(object1.getString("from"));
-        System.out.println(object1.getString("to"));
+        String username = object1.getString("user");
+        String password = object1.getString("password");
 
-        String tov1 = object1.getString("to");
-        String fromv1 = object1.getString("from");
-        String[] toFragments = tov1.split("quiznos");
-        String[] fromFragments = fromv1.split("quiznos");
-        String toFinal   =   toFragments[1];
-        String fromFinal = fromFragments[1];
+        if (sqlrobot1.checkcredentials(username, password).equals("true")) {
+            String tov1 = object1.getString("to");
+            String fromv1 = object1.getString("from");
+            System.out.println(" tov1 is: "   +tov1  );
+            System.out.println(" fromv1 is: " +fromv1);
 
-
-        System.out.println(toFragments[1]);
-        System.out.println(fromFragments[1]);
+            String sendernumber = sqlrobot1.pull_number_byuser(fromv1);
+            String receivernumber = sqlrobot1.pull_number_bycontact(tov1);
 
 
-    //    System.out.println(toFinal);
-    //    System.out.println(fromFinal);
 
-        String from = sqlrobot1.pull_user_bynumber(fromFinal);
-        String to = sqlrobot1.pull_contact_bynumber
-                (toFinal);
+            telegramsender1.sendmessage(sendernumber, receivernumber, object1.getString("text"));
 
-       // telegramsender telegramsender1 = new telegramsender();
-       // telegramsender1.sendmessage(fromFinal,toFinal,object1.getString("text"));
+            sqlrobot1.insertmessage(
+                    fromv1,
+                    tov1,
+                    object1.getString("text"),
+                    fromv1,
+                    "1",
+                    1,
+                    "right");
+            return "Message sent by: " + fromv1;
+        }
+        return "Message not-sent";
 
-        sqlrobot1.insertmessage(
-                from,
-                to,
-                object1.getString("text"),
-                from,
-                "1",
-                1);
-        return "Message sent by: " + from;
     }
 }

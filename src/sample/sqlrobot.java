@@ -2,7 +2,11 @@ package sample;
 
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 
 public class sqlrobot {
     static String USER = "root";
@@ -13,11 +17,34 @@ public class sqlrobot {
     public sqlrobot() {
     }
 
+
+    public String checkcredentials(String username, String password) throws SQLException {
+        Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+        ArrayList<user> resultHolder = new ArrayList<>();
+        Statement stmt = conn.createStatement();
+        PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM squeekdb.users");
+        ResultSet rs = preparedStatement.executeQuery();
+        while (rs.next()) {
+            resultHolder.add(new user(rs.getString("name"), rs.getString("password"),
+                    rs.getString("usernumber"), rs.getString("domain")));
+        }
+        conn.close();
+
+        for (int i = 0; i < resultHolder.size(); i++) {
+            if (resultHolder.get(i).getName().equals(username) && resultHolder.get(i).getPassword().equals(password)) {
+                return "true";
+            }
+
+        }
+        return "false";
+    }
+
+
     public String pull_number_byuser(String user) throws SQLException {
         Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
         ArrayList<String> resultHolder = new ArrayList();
         Statement stmt = conn.createStatement();
-        PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM squeekdb.users WHERE usernumber = ?");
+        PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM squeekdb.users WHERE name = ?");
         preparedStatement.setString(1, user);
         ResultSet rs = preparedStatement.executeQuery();
         while (rs.next()) {
@@ -27,11 +54,12 @@ public class sqlrobot {
 
         return resultHolder.get(0);
     }
+
     public String pull_number_bycontact(String contact) throws SQLException {
         Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
         ArrayList<String> resultHolder = new ArrayList();
         Statement stmt = conn.createStatement();
-        PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM squeekdb.smscontacts WHERE usernumber = ?");
+        PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM squeekdb.smscontacts WHERE fullname = ?");
         preparedStatement.setString(1, contact);
         ResultSet rs = preparedStatement.executeQuery();
         while (rs.next()) {
@@ -47,7 +75,7 @@ public class sqlrobot {
         ArrayList<String> resultHolder = new ArrayList();
         Statement stmt = conn.createStatement();
         PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM squeekdb.users WHERE usernumber = ?");
-        preparedStatement.setString(1,usernumber);
+        preparedStatement.setString(1, usernumber);
         ResultSet rs = preparedStatement.executeQuery();
         while (rs.next()) {
             resultHolder.add((rs.getString("name")));
@@ -62,7 +90,7 @@ public class sqlrobot {
         ArrayList<String> resultHolder = new ArrayList();
         Statement stmt = conn.createStatement();
         PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM squeekdb.smscontacts WHERE phonenumber = ?");
-        preparedStatement.setString(1,phonenumber);
+        preparedStatement.setString(1, phonenumber);
         ResultSet rs = preparedStatement.executeQuery();
         while (rs.next()) {
             resultHolder.add((rs.getString("fullname")));
@@ -103,9 +131,9 @@ public class sqlrobot {
         while (rs.next()) {
             resultHolder.add(
                     new user(rs.getString("name"),
-                             rs.getString("password"),
-                             rs.getString("usernumber"),
-                             rs.getString("domain")));
+                            rs.getString("password"),
+                            rs.getString("usernumber"),
+                            rs.getString("domain")));
         }
         conn.close();
 
@@ -214,28 +242,48 @@ public class sqlrobot {
 
     public String get_contact_messages(String user) throws SQLException {
         Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-        ArrayList<String> resultHolder = new ArrayList();
+        ArrayList<String> contactlist = new ArrayList();
         Statement stmt = conn.createStatement();
         PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM squeekdb.smscontacts WHERE user=? ");
         preparedStatement.setString(1, user);
         ResultSet rs = preparedStatement.executeQuery();
         while (rs.next()) {
-            resultHolder.add(rs.getString("fullname"));
+            contactlist.add(rs.getString("fullname"));
         }
         conn.close();
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("[");
-        for (int i = 0; i < resultHolder.size(); i++) {
-            stringBuilder.append(
-                    this.get_messages(user, resultHolder.get(i))
-            );
-            if (i != resultHolder.size() - 1) {
-                stringBuilder.append(",");
+        //   StringBuilder stringBuilder = new StringBuilder();
+        //   stringBuilder.append("[");
+        ArrayList<ArrayList<message>> allmessages = new ArrayList<>();
+        ArrayList<Integer> ids = new ArrayList<>();
+        HashMap<Integer, ArrayList<message>> hashmapmessages = new HashMap<>();
+        for (int i = 0; i < contactlist.size(); i++) {
+            allmessages.add(this.get_messages(user, contactlist.get(i)));
+            ids.add(allmessages.get(i).get(allmessages.get(i).size() - 1).getSegments());
+            hashmapmessages.put(ids.get(i), allmessages.get(i));
+            // stringBuilder.append(this.get_messages(user, contactlist.get(i)));
+            //     if (i != contactlist.size() - 1) {
+            //         stringBuilder.append(",");
+            //     }
+        }
+        Collections.sort(ids);
+        StringBuilder messagebank = new StringBuilder();
+        messagebank.append("[");
+        // stringBuilder.append("[");
+        for (int i = (ids.size() - 1); i >= 0; i--) {
+            StringBuilder chathistory = new StringBuilder();
+            chathistory.append(this.get_messages_from_array(hashmapmessages.get(ids.get(i))));
+
+            messagebank.append(chathistory);
+            if (i > 0) {
+                messagebank.append(",");
             }
 
         }
-        stringBuilder.append("]");
-        return stringBuilder.toString();
+
+        messagebank.append("]");
+        return String.valueOf(messagebank) ;
+        //    stringBuilder.append("]");
+        //    return stringBuilder.toString();
     }
 
     public String get_contacts(String user) throws SQLException {
@@ -262,21 +310,32 @@ public class sqlrobot {
         return stringBuilder.toString();
     }
 
-    public void insertmessage(String user, String contacts, String message, String author, String media, int segments) throws SQLException {
+    public void insertmessage(String user, String contacts, String message,
+                              String author, String media, int segments, String alignment) throws SQLException {
         Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-        PreparedStatement preparedStatement = conn.prepareStatement("INSERT INTO squeekdb.smsmessages (user , contacts , message , author, media, segments ) " +
-                "VALUES (?, ? , ? , ? , ?, ? ) ");
+        PreparedStatement preparedStatement = conn.prepareStatement("INSERT INTO squeekdb.smsmessages " +
+                "(user , contacts , message , author,    media, segments, date , time,    alignment  ) " +
+                "VALUES (?, ? , ? , ? , ?, ? , ? , ? ,? ) ");
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss a");
+
+        Date date = new Date();
+
         preparedStatement.setString(1, user);
         preparedStatement.setString(2, contacts);
         preparedStatement.setString(3, message);
         preparedStatement.setString(4, author);
         preparedStatement.setString(5, media);
         preparedStatement.setInt(6, segments);
+        preparedStatement.setString(7, dateFormat.format(date));
+        preparedStatement.setString(8, timeFormat.format(date));
+        preparedStatement.setString(9, alignment);
         preparedStatement.executeUpdate();
         conn.close();
     }
 
-    public String get_messages(String user, String contact) throws SQLException {
+    public ArrayList<message> get_messages(String user, String contact) throws SQLException {
         Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
         ArrayList<message> resultHolder = new ArrayList();
         Statement stmt = conn.createStatement();
@@ -291,15 +350,44 @@ public class sqlrobot {
                             rs.getString("message"),
                             rs.getString("author"),
                             rs.getString("media"),
-                            rs.getInt("id")));
+                            rs.getInt("id"),
+                            rs.getString("date"),
+                            rs.getString("alignment"),
+                            rs.getString("time")
+
+
+                    ));
         }
         conn.close();
+//        StringBuilder stringBuilder = new StringBuilder();
+//
+//        stringBuilder.append("[");
+//        for (int i = 0; i < resultHolder.size(); i++) {
+//            stringBuilder.append(resultHolder.get(i).toJson());
+//            if (i != resultHolder.size() - 1) {
+//                stringBuilder.append(",");
+//            }
+//
+//        }
+//        stringBuilder.append("]");
+//        final String symbol = "\"";
+//        String finaljson =
+//                "{" + symbol + "Name" + symbol + ":" + symbol + contact + symbol + "," +
+//                        symbol + "messages" + symbol + ":" + symbol + stringBuilder.toString() + symbol +
+//
+//                        "}";
+
+
+        return resultHolder;
+    }
+
+    public String get_messages_from_array(ArrayList<message> messageArrayList) {
         StringBuilder stringBuilder = new StringBuilder();
 
         stringBuilder.append("[");
-        for (int i = 0; i < resultHolder.size(); i++) {
-            stringBuilder.append(resultHolder.get(i).toJson());
-            if (i != resultHolder.size() - 1) {
+        for (int i = 0; i < messageArrayList.size(); i++) {
+            stringBuilder.append(messageArrayList.get(i).toJson());
+            if (i != messageArrayList.size() - 1) {
                 stringBuilder.append(",");
             }
 
@@ -307,15 +395,15 @@ public class sqlrobot {
         stringBuilder.append("]");
         final String symbol = "\"";
         String finaljson =
-                "{" + symbol + "Name" + symbol + ":" + symbol + contact + symbol + "," +
-                        symbol + "messages" + symbol + ":" + symbol + stringBuilder.toString() + symbol +
+                "{" + symbol + "Name" + symbol + ":" + symbol + messageArrayList.get(0).getContact() + symbol + "," +
+                        symbol + "messages" + symbol + ":" +   stringBuilder+
 
                         "}";
-
 
         return finaljson;
 
     }
+
 
     public void deletemessage(String user, String contact, String message) throws SQLException {
         Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);

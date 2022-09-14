@@ -7,19 +7,24 @@ public class message {
 // I might need to refactor a lot of this
     {
         return
-                "{" +   symbol + "message" + symbol + ":" + symbol + getMessage() + symbol + "," +
-                        symbol + "author" + symbol + ":" + symbol + getAuthor() + symbol +
-                        symbol + "user" + symbol + ":" + symbol + getUser() + symbol +
-                        symbol + "contact" + symbol + ":" + symbol + getContact() + symbol +
-                        symbol + "media" + symbol + ":" + symbol + getMedia() + symbol +
-                        symbol + "segments" + symbol + ":" + symbol + getSegments() + symbol +
-                        "}";
+                "{" +   symbol + "Text"      +    symbol + ":" + symbol + getText()      + symbol + "," +
+                        symbol + "Author"    +    symbol + ":" + symbol + getAuthor()    + symbol + "," +
+                   //   symbol + "user"      +    symbol + ":" + symbol + getUser()      + symbol + "," +
+                   //   symbol + "contact"   +    symbol + ":" + symbol + getContact()   + symbol + "," +
+                   //   symbol + "media"     +    symbol + ":" + symbol + getMedia()     + symbol + "," +
+                        symbol + "Segment"   +    symbol + ":" + symbol + getSegments()  + symbol + "," +
+                        symbol + "date"      +    symbol + ":" + symbol + getDate()      + symbol + "," +
+                        symbol + "time"      +    symbol + ":" + symbol + getTime()      + symbol + "," +
+                        symbol + "alignment" +    symbol + ":" + symbol + getAlignment() + symbol +   "}";
     }
 
+    String alignment;
+    String date;
+    String time;
 
     String user;
     String contact;
-    String message;
+    String text;
 
     String author;
     String media;
@@ -28,16 +33,50 @@ public class message {
     private final String symbol = "\"";
 
 
-    public message(String user, String contact, String message, String author, String media, int segments) {
+    public message(String user, String contact,
+                   String message, String author,
+                   String media, int segments, String date
+            , String alignment, String time) {
+
+
         this.user = user;
         this.contact = contact;
-        this.message = message;
+        this.text = message;
         this.author = author;
         this.media = media;
         this.segments = segments;
+        this.date = date;
+        this.time = time;
+        this.alignment = alignment;
     }
 
-    public message() {}
+    public message() {
+    }
+
+
+    public String getAlignment() {
+        return alignment;
+    }
+
+    public void setAlignment(String alignment) {
+        this.alignment = alignment;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
 
     public String getUser() {
         return user;
@@ -55,14 +94,13 @@ public class message {
         this.contact = contact;
     }
 
-    public String getMessage() {
-        return message;
+    public String getText() {
+        return text;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setText(String text) {
+        this.text = text;
     }
-
 
 
     public String getAuthor() {

@@ -42,8 +42,11 @@ public class mysqltablecreationtext {
 //   `author` VARCHAR(305) NOT NULL,
 //   `media` VARCHAR(410) NOT NULL,
 //   `segments` VARCHAR(305) NOT NULL,
-//    PRIMARY KEY (`id`),
-//    UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE);
+//   `date` VARCHAR(420) NOT NULL,
+//   `time` VARCHAR(420) NOT NULL,
+//   `alignment` VARCHAR(120) NOT NULL,
+//   PRIMARY KEY (`id`),
+//   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE);
 
 
     //CREATE TABLE `squeekdb`.`smscampaign` (
@@ -51,13 +54,11 @@ public class mysqltablecreationtext {
     //  `creator` VARCHAR(305) NOT NULL,
     //  `contact` VARCHAR(305) NOT NULL,
     //  `schedule` VARCHAR(305) NOT NULL,
-    //  `datetime` VARCHAR(455) NOT NULL,
+    //  `datetime` VARCHAR(1055) NOT NULL,
     //  `template` VARCHAR(1000) NOT NULL,
     //  PRIMARY KEY (`id`),
     //  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
     //  UNIQUE INDEX `creator_UNIQUE` (`creator` ASC) VISIBLE);
-
-
 
 
 }

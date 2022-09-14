@@ -7,21 +7,19 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
-public class minihttpserver
+public class loginhttpserver
 
 {
-    HttpServer server = HttpServer.create(new InetSocketAddress(8001), 20000);
+    HttpServer server = HttpServer.create(new InetSocketAddress(8004), 20000);
     ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 
-
-
-    readmessagehandler myHttpHandler1 = new readmessagehandler();
+    generalhttphandler myHttpHandler1 = new generalhttphandler();
 
     public void launch()
     {
         System.out.println("AND HER NAME IS ERIKA");
 
-        server.createContext("/getsms", myHttpHandler1);
+        server.createContext("/general", myHttpHandler1);
 
         server.setExecutor(threadPoolExecutor);
 
@@ -29,7 +27,7 @@ public class minihttpserver
 
     }
 
-    public minihttpserver() throws IOException {
+    public loginhttpserver() throws IOException {
     }
 
     public HttpServer getServer() {
@@ -48,11 +46,11 @@ public class minihttpserver
         this.threadPoolExecutor = threadPoolExecutor;
     }
 
-    public readmessagehandler getMyHttpHandler1() {
+    public generalhttphandler getMyHttpHandler1() {
         return myHttpHandler1;
     }
 
-    public void setMyHttpHandler1(readmessagehandler myHttpHandler1) {
+    public void setMyHttpHandler1(generalhttphandler myHttpHandler1) {
         this.myHttpHandler1 = myHttpHandler1;
     }
 
